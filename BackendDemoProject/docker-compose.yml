@@ -1,0 +1,45 @@
+version: '3.3'
+services:
+  mysql_db:
+    image: 040619996/mysql_iauro:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - my-db:/var/lib/mysql
+  mongo_db:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+  app:
+    build: .././BackendDemoProject
+    depends_on:
+      - mysql_db
+      - mongo_db
+
+    ports:
+      - "51005:51005"
+    links:
+    - mongo_db
+  nginx:
+      restart: always
+      build: 
+          context: ./nginx
+      ports:
+          - '443:443'
+          - '80:80'
+      volumes:
+          - /root/BackendDemoProject:/etc/nginx/certs
+
+volumes:
+  mongodb_data:
+  my-db:
